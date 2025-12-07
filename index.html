@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Prescription Generator - Enterprise System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <div>
+            <h1 class="text-2xl font-bold">AI Prescription Generator</h1>
+            <p class="text-sm opacity-90">Enterprise Healthcare Management System</p>
+          </div>
+        </div>
+        <button id="loginBtn" class="bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+          Login
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <div id="app" class="container mx-auto px-4 py-8">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="max-w-md mx-auto">
+      <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div class="text-center mb-8">
+          <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800">Doctor Login</h2>
+          <p class="text-gray-600 mt-2">Enter your email to receive OTP</p>
+        </div>
+
+        <div id="emailForm">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+            <input type="email" id="emailInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="doctor@clinic.com">
+          </div>
+          <button id="sendOtpBtn" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+            Send OTP
+          </button>
+        </div>
+
+        <div id="otpForm" class="hidden">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+            <input type="text" id="otpInput" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="000000">
+          </div>
+          <button id="verifyOtpBtn" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+            Verify & Login
+          </button>
+          <button id="backToEmailBtn" class="w-full mt-3 text-gray-600 py-2 hover:text-gray-800 transition">
+            ← Back to Email
+          </button>
+        </div>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+          <p>Demo Mode: Use any email, OTP will be <strong>123456</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">Welcome, <span id="doctorName">Dr. Sharma</span></h2>
+        <p class="text-gray-600 mt-1">City Health Clinic</p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-white rounded-lg shadow-md mb-6">
+        <div class="flex border-b">
+          <button class="tab-btn px-6 py-4 font-semibold text-purple-600 border-b-2 border-purple-600" data-tab="patients">
+            Patients
+          </button>
+          <button class="tab-btn px-6 py-4 font-semibold text-gray-600 hover:text-purple-600" data-tab="opd">
+            OPD Visit
+          </button>
+          <button class="tab-btn px-6 py-4 font-semibold text-gray-600 hover:text-purple-600" data-tab="prescription">
+            Prescription
+          </button>
+        </div>
+      </div>
+
+      <!-- Patients Tab -->
+      <div id="patientsTab" class="tab-content">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Patient List</h3>
+            <button id="addPatientBtn" class="gradient-bg text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+              + Add Patient
+            </button>
+          </div>
+
+          <div class="mb-4">
+            <input type="text" id="patientSearch" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Search by Patient ID or Name...">
+          </div>
+
+          <div id="patientList" class="space-y-3">
+            <!-- Patient cards will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- OPD Visit Tab -->
+      <div id="opdTab" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">New OPD Visit</h3>
+          
+          <form id="opdForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Patient *</label>
+                <select id="opdPatientSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                  <option value="">Choose patient...</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Visit Date</label>
+                <input type="date" id="visitDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Chief Complaint *</label>
+              <textarea id="chiefComplaint" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Describe main symptoms..." required></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">BP (mmHg)</label>
+                <input type="text" id="bp" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="120/80">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Temp (°F)</label>
+                <input type="number" id="temp" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="98.6">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Pulse (bpm)</label>
+                <input type="number" id="pulse" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="72">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">SpO2 (%)</label>
+                <input type="number" id="spo2" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="98">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Examination Notes</label>
+              <textarea id="examNotes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Physical examination findings..."></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Provisional Diagnosis *</label>
+              <input type="text" id="diagnosis" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="e.g., Upper Respiratory Tract Infection" required>
+            </div>
+
+            <div class="flex gap-4">
+              <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                Save OPD Visit
+              </button>
+              <button type="button" id="generatePrescriptionBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                🤖 Generate AI Prescription
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Prescription Tab -->
+      <div id="prescriptionTab" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">Prescription Editor</h3>
+
+          <div id="aiSuggestions" class="hidden mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-l-4 border-purple-500">
+            <div class="flex items-start">
+              <svg class="w-6 h-6 text-purple-600 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+              <div class="flex-1">
+                <h4 class="font-semibold text-purple-900 mb-2">AI Generated Prescription</h4>
+                <div id="aiMedicineList" class="space-y-2"></div>
+                <button id="acceptAiBtn" class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
+                  Accept & Edit
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="medicineList" class="space-y-4 mb-6">
+            <!-- Medicine items will be added here -->
+          </div>
+
+          <button id="addMedicineBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition mb-6">
+            + Add Medicine
+          </button>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Additional Instructions</label>
+            <textarea id="additionalInstructions" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Follow-up, lifestyle advice, etc."></textarea>
+          </div>
+
+          <div class="flex gap-4">
+            <button id="savePrescriptionBtn" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+              Save Prescription
+            </button>
+            <button id="previewPrescriptionBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+              Preview & Print
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prescription Preview Modal -->
+  <div id="prescriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b flex justify-between items-center">
+        <h3 class="text-xl font-bold">Prescription Preview</h3>
+        <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="prescriptionPreview" class="p-8">
+        <!-- Prescription content will be inserted here -->
+      </div>
+      <div class="p-6 border-t flex justify-end gap-4">
+        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+          Print
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Demo Data
+    const demoPatients = [
+      { id: '1', patient_id: 'P000001', name: 'Rajesh Kumar', age: 45, gender: 'Male', phone: '+91-9876543210' },
+      { id: '2', patient_id: 'P000002', name: 'Priya Sharma', age: 32, gender: 'Female', phone: '+91-9876543211' },
+      { id: '3', patient_id: 'P000003', name: 'Amit Patel', age: 28, gender: 'Male', phone: '+91-9876543212' },
+      { id: '4', patient_id: 'P000004', name: 'Sneha Reddy', age: 55, gender: 'Female', phone: '+91-9876543213' },
+      { id: '5', patient_id: 'P000005', name: 'Vikram Singh', age: 38, gender: 'Male', phone: '+91-9876543214' }
+    ];
+
+    const demoMedicines = [
+      { name: 'Paracetamol (Crocin)', dosage: '500mg', form: 'Tablet' },
+      { name: 'Amoxicillin (Novamox)', dosage: '500mg', form: 'Capsule' },
+      { name: 'Azithromycin (Azithral)', dosage: '500mg', form: 'Tablet' },
+      { name: 'Omeprazole (Omez)', dosage: '20mg', form: 'Capsule' },
+      { name: 'Cetirizine (Cetrizet)', dosage: '10mg', form: 'Tablet' }
+    ];
+
+    let currentUser = null;
+    let currentOPD = null;
+    let medicines = [];
+
+    // Login Flow
+    document.getElementById('sendOtpBtn').addEventListener('click', () => {
+      const email = document.getElementById('emailInput').value;
+      if (!email) {
+        alert('Please enter email');
+        return;
+      }
+      document.getElementById('emailForm').classList.add('hidden');
+      document.getElementById('otpForm').classList.remove('hidden');
+      alert('OTP sent! Use 123456 for demo');
+    });
+
+    document.getElementById('verifyOtpBtn').addEventListener('click', () => {
+      const otp = document.getElementById('otpInput').value;
+      if (otp === '123456') {
+        currentUser = { name: 'Dr. Rajesh Sharma', email: document.getElementById('emailInput').value };
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        loadPatients();
+      } else {
+        alert('Invalid OTP. Use 123456 for demo');
+      }
+    });
+
+    document.getElementById('backToEmailBtn').addEventListener('click', () => {
+      document.getElementById('otpForm').classList.add('hidden');
+      document.getElementById('emailForm').classList.remove('hidden');
+    });
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('text-purple-600', 'border-b-2', 'border-purple-600');
+          b.classList.add('text-gray-600');
+        });
+        btn.classList.add('text-purple-600', 'border-b-2', 'border-purple-600');
+        btn.classList.remove('text-gray-600');
+
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.add('hidden');
+        });
+        document.getElementById(tab + 'Tab').classList.remove('hidden');
+      });
+    });
+
+    // Load Patients
+    function loadPatients() {
+      const patientList = document.getElementById('patientList');
+      const opdSelect = document.getElementById('opdPatientSelect');
+      
+      patientList.innerHTML = demoPatients.map(p => `
+        <div class="card-hover border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+          <div>
+            <div class="font-semibold text-gray-800">${p.name}</div>
+            <div class="text-sm text-gray-600">ID: ${p.patient_id} | Age: ${p.age} | ${p.gender}</div>
+            <div class="text-sm text-gray-500">${p.phone}</div>
+          </div>
+          <button onclick="selectPatient('${p.id}')" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
+            New Visit
+          </button>
+        </div>
+      `).join('');
+
+      opdSelect.innerHTML = '<option value="">Choose patient...</option>' + 
+        demoPatients.map(p => `<option value="${p.id}">${p.name} (${p.patient_id})</option>`).join('');
+    }
+
+    window.selectPatient = (id) => {
+      document.getElementById('opdPatientSelect').value = id;
+      document.querySelectorAll('.tab-btn')[1].click();
+    };
+
+    // Set today's date
+    document.getElementById('visitDate').valueAsDate = new Date();
+
+    // OPD Form Submit
+    document.getElementById('opdForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const patientId = document.getElementById('opdPatientSelect').value;
+      const patient = demoPatients.find(p => p.id === patientId);
+      
+      currentOPD = {
+        patient: patient,
+        chiefComplaint: document.getElementById('chiefComplaint').value,
+        vitals: {
+          bp: document.getElementById('bp').value,
+          temp: document.getElementById('temp').value,
+          pulse: document.getElementById('pulse').value,
+          spo2: document.getElementById('spo2').value
+        },
+        examNotes: document.getElementById('examNotes').value,
+        diagnosis: document.getElementById('diagnosis').value
+      };
+
+      alert('OPD Visit saved successfully!');
+    });
+
+    // Generate AI Prescription
+    document.getElementById('generatePrescriptionBtn').addEventListener('click', () => {
+      if (!currentOPD) {
+        alert('Please save OPD visit first');
+        return;
+      }
+
+      // Simulate AI generation
+      const aiMedicines = [
+        {
+          name: 'Paracetamol (Crocin)',
+          dosage: '500mg tablet',
+          frequency: 'Thrice daily',
+          duration: '5 days',
+          instructions: 'After meals',
+          cautions: 'Do not exceed 4g per day'
+        },
+        {
+          name: 'Azithromycin (Azithral)',
+          dosage: '500mg tablet',
+          frequency: 'Once daily',
+          duration: '3 days',
+          instructions: '1 hour before meals',
+          cautions: 'Complete full course'
+        }
+      ];
+
+      const aiList = document.getElementById('aiMedicineList');
+      aiList.innerHTML = aiMedicines.map(m => `
+        <div class="bg-white p-3 rounded border border-purple-200">
+          <div class="font-semibold text-purple-900">${m.name}</div>
+          <div class="text-sm text-gray-700 mt-1">
+            ${m.dosage} - ${m.frequency} for ${m.duration}<br>
+            <span class="text-gray-600">${m.instructions}</span>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('aiSuggestions').classList.remove('hidden');
+      document.querySelectorAll('.tab-btn')[2].click();
+
+      document.getElementById('acceptAiBtn').onclick = () => {
+        medicines = aiMedicines;
+        renderMedicines();
+        document.getElementById('aiSuggestions').classList.add('hidden');
+      };
+    });
+
+    // Add Medicine
+    document.getElementById('addMedicineBtn').addEventListener('click', () => {
+      medicines.push({
+        name: '',
+        dosage: '',
+        frequency: '',
+        duration: '',
+        instructions: ''
+      });
+      renderMedicines();
+    });
+
+    function renderMedicines() {
+      const list = document.getElementById('medicineList');
+      list.innerHTML = medicines.map((m, i) => `
+        <div class="border border-gray-200 rounded-lg p-4">
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-semibold text-gray-700">Medicine ${i + 1}</span>
+            <button onclick="removeMedicine(${i})" class="text-red-600 hover:text-red-800">Remove</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" value="${m.name}" onchange="updateMedicine(${i}, 'name', this.value)" class="px-3 py-2 border rounded" placeholder="Medicine name">
+            <input type="text" value="${m.dosage}" onchange="updateMedicine(${i}, 'dosage', this.value)" class="px-3 py-2 border rounded" placeholder="Dosage">
+            <input type="text" value="${m.frequency}" onchange="updateMedicine(${i}, 'frequency', this.value)" class="px-3 py-2 border rounded" placeholder="Frequency">
+            <input type="text" value="${m.duration}" onchange="updateMedicine(${i}, 'duration', this.value)" class="px-3 py-2 border rounded" placeholder="Duration">
+            <input type="text" value="${m.instructions}" onchange="updateMedicine(${i}, 'instructions', this.value)" class="px-3 py-2 border rounded md:col-span-2" placeholder="Instructions">
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.updateMedicine = (index, field, value) => {
+      medicines[index][field] = value;
+    };
+
+    window.removeMedicine = (index) => {
+      medicines.splice(index, 1);
+      renderMedicines();
+    };
+
+    // Save Prescription
+    document.getElementById('savePrescriptionBtn').addEventListener('click', () => {
+      if (medicines.length === 0) {
+        alert('Please add at least one medicine');
+        return;
+      }
+      alert('Prescription saved successfully!');
+    });
+
+    // Preview Prescription
+    document.getElementById('previewPrescriptionBtn').addEventListener('click', () => {
+      if (!currentOPD || medicines.length === 0) {
+        alert('Please complete OPD visit and add medicines');
+        return;
+      }
+
+      const preview = document.getElementById('prescriptionPreview');
+      preview.innerHTML = `
+        <div class="text-center border-b-2 border-gray-800 pb-4 mb-6">
+          <h1 class="text-3xl font-bold text-gray-800">℞ PRESCRIPTION</h1>
+          <p class="text-gray-600 mt-2">City Health Clinic</p>
+          <p class="text-sm text-gray-500">Date: ${new Date().toLocaleDateString('en-IN')}</p>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-purple-600 mb-3">Patient Information</h3>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div><span class="font-semibold">Name:</span> ${currentOPD.patient.name}</div>
+            <div><span class="font-semibold">Age:</span> ${currentOPD.patient.age} years</div>
+            <div><span class="font-semibold">Gender:</span> ${currentOPD.patient.gender}</div>
+            <div><span class="font-semibold">Patient ID:</span> ${currentOPD.patient.patient_id}</div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-purple-600 mb-3">Diagnosis</h3>
+          <p class="text-gray-800 font-semibold">${currentOPD.diagnosis}</p>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-purple-600 mb-3">℞ Prescription</h3>
+          ${medicines.map((m, i) => `
+            <div class="mb-4 p-3 bg-gray-50 rounded border-l-4 border-purple-500">
+              <div class="font-semibold text-gray-800">${i + 1}. ${m.name}</div>
+              <div class="text-sm text-gray-700 mt-1">
+                <strong>Dosage:</strong> ${m.dosage} | 
+                <strong>Frequency:</strong> ${m.frequency} | 
+                <strong>Duration:</strong> ${m.duration}
+              </div>
+              ${m.instructions ? `<div class="text-sm text-gray-600 mt-1"><strong>Instructions:</strong> ${m.instructions}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        ${document.getElementById('additionalInstructions').value ? `
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-purple-600 mb-3">Additional Instructions</h3>
+            <p class="text-gray-700">${document.getElementById('additionalInstructions').value}</p>
+          </div>
+        ` : ''}
+
+        <div class="mt-12 pt-6 border-t text-right">
+          <div class="inline-block">
+            <div class="border-t-2 border-gray-800 pt-2 px-8">
+              <p class="font-semibold">Dr. Rajesh Sharma</p>
+              <p class="text-sm text-gray-600">MBBS, MD (Medicine)</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('prescriptionModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('prescriptionModal').classList.add('hidden');
+    });
+  </script>
+</body>
+</html>
